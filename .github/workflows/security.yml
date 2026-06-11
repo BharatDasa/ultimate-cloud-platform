@@ -93,8 +93,12 @@ jobs:
 
       - name: Run tfsec
         run: |
-<<<<<<< HEAD
           tfsec . --soft-fail
-=======
-          tfsec . --soft-fail
->>>>>>> 78daf1a7aacc4b062041fc5376bacd58bc2bc6c1
+
+
+
+
+
+
+
+          
