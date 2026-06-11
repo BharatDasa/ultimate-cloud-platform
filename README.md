@@ -782,3 +782,6 @@ MIT License
 # ⭐ Enterprise-Grade Cloud-Native Kubernetes Platform
 
 Production-ready DevOps and Platform Engineering ecosystem built using AWS, Terraform, Kubernetes, GitHub Actions, Prometheus, Grafana, Trivy, and enterprise CI/CD automation.
+
+
+<img width="1536" height="1024" alt="ULTIMATE CLOUD PLATFORM - COMPLETE WORKFLOW DIAGRAM" src="https://github.com/user-attachments/assets/ca20b7ff-4c20-453e-ae3b-59d8bc9a02b1" />
