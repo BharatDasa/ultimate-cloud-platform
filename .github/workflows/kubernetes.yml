@@ -1,0 +1,35 @@
+name: Kubernetes Validation Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+    paths:
+      - 'kubernetes/**'
+
+jobs:
+  kubernetes-validation:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      - name: Validate Kubernetes YAML Files
+        run: |
+          kubectl apply \
+            --dry-run=client \
+            -f kubernetes/
+
+      - name: Kubernetes Manifest Summary
+        run: |
+          echo "===================================="
+          echo "Kubernetes Manifests Validated"
+          echo "===================================="

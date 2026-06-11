@@ -1,0 +1,15 @@
+apiVersion: v1
+
+kind: ConfigMap
+
+metadata:
+
+  name: frontend-config
+
+  namespace: apps
+
+data:
+
+  APP_ENV: "production"
+
+  APP_NAME: "ultimate-platform-frontend"

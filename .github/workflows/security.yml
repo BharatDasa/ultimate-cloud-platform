@@ -1,0 +1,100 @@
+name: Security Pipeline
+
+on:
+
+  push:
+
+    branches:
+      - main
+
+jobs:
+
+  #################################################
+  # TRIVY FILESYSTEM SCAN
+  #################################################
+
+  trivy-filesystem-scan:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy Filesystem Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: 0
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  #################################################
+  # TRIVY KUBERNETES CONFIG SCAN
+  #################################################
+
+  trivy-config-scan:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Run Trivy Kubernetes Config Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: config
+          scan-ref: kubernetes/
+          format: table
+          exit-code: 0
+          severity: 'CRITICAL,HIGH'
+
+  #################################################
+  # TERRAFORM SECURITY SCAN
+  #################################################
+
+  terraform-security-scan:
+
+    runs-on: ubuntu-latest
+
+    defaults:
+
+      run:
+
+        working-directory: terraform
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Install tfsec
+        run: |
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+      - name: Run tfsec
+        run: |
+<<<<<<< HEAD
+          tfsec . --soft-fail
+=======
+          tfsec . --soft-fail
+>>>>>>> 78daf1a7aacc4b062041fc5376bacd58bc2bc6c1

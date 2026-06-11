@@ -1,0 +1,144 @@
+name: Ultimate Platform Deployment Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Build Push Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Login To Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+        with:
+          version: latest
+
+      #################################################
+      # FRONTEND
+      #################################################
+
+      - name: Build Frontend Docker Image
+        run: |
+          docker build \
+            -t ultimate-platform-frontend:${{ github.sha }} \
+            ./apps/frontend
+
+      - name: Tag Frontend SHA Image
+        run: |
+          docker tag \
+            ultimate-platform-frontend:${{ github.sha }} \
+            913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-frontend:${{ github.sha }}
+
+      - name: Tag Frontend Latest Image
+        run: |
+          docker tag \
+            ultimate-platform-frontend:${{ github.sha }} \
+            913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-frontend:latest
+
+      - name: Push Frontend SHA Image
+        run: |
+          docker push \
+            913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-frontend:${{ github.sha }}
+
+      - name: Push Frontend Latest Image
+        run: |
+          docker push \
+            913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-frontend:latest
+
+      #################################################
+      # BACKEND
+      #################################################
+
+      - name: Build Backend Docker Image
+        run: |
+          docker build \
+            -t ultimate-platform-backend:${{ github.sha }} \
+            ./apps/backend
+
+      - name: Tag Backend SHA Image
+        run: |
+          docker tag \
+            ultimate-platform-backend:${{ github.sha }} \
+            913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-backend:${{ github.sha }}
+
+      - name: Tag Backend Latest Image
+        run: |
+          docker tag \
+            ultimate-platform-backend:${{ github.sha }} \
+            913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-backend:latest
+
+      - name: Push Backend SHA Image
+        run: |
+          docker push \
+            913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-backend:${{ github.sha }}
+
+      - name: Push Backend Latest Image
+        run: |
+          docker push \
+            913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-backend:latest
+
+      #################################################
+      # KUBERNETES DEPLOYMENT
+      #################################################
+
+      - name: Update Kubeconfig
+        run: |
+          aws eks update-kubeconfig \
+            --region ap-south-1 \
+            --name ultimate-eks-cluster
+
+      - name: Deploy Kubernetes Resources
+        run: |
+          kubectl apply -f kubernetes/
+
+      - name: Update Frontend Deployment Image
+        run: |
+          kubectl set image deployment/frontend \
+            frontend=913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-frontend:${{ github.sha }} \
+            -n apps
+
+      - name: Update Backend Deployment Image
+        run: |
+          kubectl set image deployment/backend \
+            backend=913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-backend:${{ github.sha }} \
+            -n apps
+
+      #################################################
+      # VALIDATION
+      #################################################
+
+      - name: Verify Frontend Rollout
+        run: |
+          kubectl rollout status deployment/frontend -n apps
+
+      - name: Verify Backend Rollout
+        run: |
+          kubectl rollout status deployment/backend -n apps
+
+      - name: Cluster Validation
+        run: |
+          kubectl get nodes
+          kubectl get pods -A
+
+      - name: Deployment Success
+        run: |
+          echo "===================================="
+          echo "ULTIMATE PLATFORM DEPLOYED"
+          echo "===================================="

@@ -1,0 +1,52 @@
+name: Terraform Infrastructure Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+    paths:
+      - 'terraform/**'
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    name: Terraform Validation
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format Check
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+<<<<<<< HEAD
+          path: terraform/tfplan
+=======
+          path: terraform/tfplan
+>>>>>>> 78daf1a7aacc4b062041fc5376bacd58bc2bc6c1
