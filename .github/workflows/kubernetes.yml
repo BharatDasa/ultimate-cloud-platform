@@ -13,6 +13,8 @@ on:
     paths:
       - 'kubernetes/**'
 
+  workflow_dispatch:
+
 jobs:
   kubernetes-validation:
     name: Validate Kubernetes Manifests
@@ -81,7 +83,7 @@ jobs:
             -f kubernetes/autoscaling/
 
       #################################################
-      # VALIDATE MONITORING FILES
+      # VALIDATE MONITORING VALUES FILES
       #################################################
 
       - name: Validate Prometheus Values File
@@ -123,4 +125,3 @@ jobs:
           echo "===================================="
           echo "KUBERNETES VALIDATION SUCCESSFUL"
           echo "===================================="
-
