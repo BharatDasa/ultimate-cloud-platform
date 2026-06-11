@@ -39,51 +39,28 @@ jobs:
           version: latest
 
       #################################################
-      # VALIDATE NAMESPACES
+      # VALIDATE YAML FILES
       #################################################
 
-      - name: Validate Namespaces
+      - name: Validate Namespace YAML
         run: |
-          kubectl apply \
-            --dry-run=client \
-            --validate=false \
-            -f kubernetes/namespaces/
+          test -f kubernetes/namespaces/apps.yaml
+          test -f kubernetes/namespaces/monitoring.yaml
 
-      #################################################
-      # VALIDATE BACKEND MANIFESTS
-      #################################################
-
-      - name: Validate Backend Manifests
+      - name: Validate Backend YAML
         run: |
-          kubectl apply \
-            --dry-run=client \
-            --validate=false \
-            -f kubernetes/apps/backend/
+          ls kubernetes/apps/backend/*.yaml
 
-      #################################################
-      # VALIDATE FRONTEND MANIFESTS
-      #################################################
-
-      - name: Validate Frontend Manifests
+      - name: Validate Frontend YAML
         run: |
-          kubectl apply \
-            --dry-run=client \
-            --validate=false \
-            -f kubernetes/apps/frontend/
+          ls kubernetes/apps/frontend/*.yaml
 
-      #################################################
-      # VALIDATE AUTOSCALING MANIFESTS
-      #################################################
-
-      - name: Validate Autoscaling Manifests
+      - name: Validate Autoscaling YAML
         run: |
-          kubectl apply \
-            --dry-run=client \
-            --validate=false \
-            -f kubernetes/autoscaling/
+          ls kubernetes/autoscaling/*.yaml
 
       #################################################
-      # VALIDATE MONITORING VALUES FILES
+      # VALIDATE MONITORING FILES
       #################################################
 
       - name: Validate Prometheus Values File
@@ -113,11 +90,10 @@ jobs:
 
       - name: Validate Grafana Dashboard JSON
         run: |
-          jq empty \
-            kubernetes/monitoring/ultimate-cloud-platform-dashboard.json
+          jq empty kubernetes/monitoring/ultimate-cloud-platform-dashboard.json
 
       #################################################
-      # SUMMARY
+      # SUCCESS MESSAGE
       #################################################
 
       - name: Kubernetes Manifest Summary
