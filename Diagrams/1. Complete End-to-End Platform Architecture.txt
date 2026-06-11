@@ -1,0 +1,43 @@
+                    ┌─────────────────────┐
+                    │    Developer Push   │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │     GitHub Repo     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                ┌────────────────────────────┐
+                │   GitHub Actions CI/CD     │
+                ├────────────────────────────┤
+                │ Terraform Validation       │
+                │ Kubernetes Validation      │
+                │ Security Scanning          │
+                │ Docker Build & Push        │
+                │ Kubernetes Deployment      │
+                └──────────┬─────────────────┘
+                           │
+                           ▼
+                ┌────────────────────────────┐
+                │        Amazon ECR          │
+                └──────────┬─────────────────┘
+                           │
+                           ▼
+                ┌────────────────────────────┐
+                │        Amazon EKS          │
+                ├────────────────────────────┤
+                │ Frontend Pods              │
+                │ Backend Pods               │
+                │ HPA Autoscaler             │
+                │ Cluster Autoscaler         │
+                │ Prometheus                 │
+                │ Grafana                    │
+                │ Alertmanager               │
+                │ Node Exporter              │
+                └──────────┬─────────────────┘
+                           │
+                           ▼
+                ┌────────────────────────────┐
+                │ Monitoring & Observability │
+                └────────────────────────────┘

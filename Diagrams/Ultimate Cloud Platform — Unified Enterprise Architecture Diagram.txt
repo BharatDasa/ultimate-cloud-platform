@@ -1,0 +1,123 @@
+                                           ┌────────────────────────────┐
+                                           │        END USERS           │
+                                           │  Web / Mobile / API Users │
+                                           └─────────────┬──────────────┘
+                                                         │
+                                                         ▼
+                                      ┌────────────────────────────────────┐
+                                      │         AWS LOAD BALANCER         │
+                                      │      Kubernetes Ingress Layer     │
+                                      └────────────────┬───────────────────┘
+                                                       │
+                     ┌─────────────────────────────────┼─────────────────────────────────┐
+                     ▼                                 ▼                                 ▼
+
+          ┌───────────────────┐           ┌───────────────────┐           ┌───────────────────┐
+          │ Frontend Service  │           │ Backend Service   │           │ Monitoring Stack  │
+          └─────────┬─────────┘           └─────────┬─────────┘           └─────────┬─────────┘
+                    │                               │                               │
+                    ▼                               ▼                               ▼
+
+         ┌────────────────────┐         ┌────────────────────┐         ┌────────────────────┐
+         │ Frontend Pods      │         │ Backend Pods       │         │ Prometheus         │
+         │ React / Nginx      │         │ NodeJS API         │         │ Grafana            │
+         │ HPA Enabled        │         │ HPA Enabled        │         │ Alertmanager       │
+         └─────────┬──────────┘         └─────────┬──────────┘         └─────────┬──────────┘
+                   │                              │                              │
+                   └──────────────┬───────────────┴──────────────┬──────────────┘
+                                  │                              │
+                                  ▼                              ▼
+
+                    ┌────────────────────────────────────────────────────┐
+                    │                 AMAZON EKS CLUSTER                │
+                    ├────────────────────────────────────────────────────┤
+                    │                                                    │
+                    │  Worker Node 1                                    │
+                    │   ├── Frontend Pod                                │
+                    │   ├── Backend Pod                                 │
+                    │   └── Node Exporter                               │
+                    │                                                    │
+                    │  Worker Node 2                                    │
+                    │   ├── Frontend Pod                                │
+                    │   ├── Backend Pod                                 │
+                    │   └── Node Exporter                               │
+                    │                                                    │
+                    │  Worker Node 3                                    │
+                    │   ├── Frontend Pod                                │
+                    │   ├── Backend Pod                                 │
+                    │   └── Node Exporter                               │
+                    │                                                    │
+                    │  Metrics Server                                   │
+                    │  kube-state-metrics                               │
+                    │  Cluster Autoscaler                               │
+                    │                                                    │
+                    └─────────────────────┬──────────────────────────────┘
+                                          │
+                                          ▼
+
+                         ┌──────────────────────────────────┐
+                         │       AMAZON ECR REGISTRY        │
+                         │                                  │
+                         │  Frontend Docker Images          │
+                         │  Backend Docker Images           │
+                         └────────────────┬─────────────────┘
+                                          │
+                                          ▼
+
+                    ┌──────────────────────────────────────────────┐
+                    │          GITHUB ACTIONS CI/CD               │
+                    ├──────────────────────────────────────────────┤
+                    │                                              │
+                    │  Terraform Validation Pipeline               │
+                    │  Kubernetes Validation Pipeline              │
+                    │  Security Pipeline                           │
+                    │    ├── Trivy Filesystem Scan                │
+                    │    ├── Trivy Kubernetes Scan                │
+                    │    └── tfsec Terraform Scan                 │
+                    │                                              │
+                    │  Deployment Pipeline                         │
+                    │    ├── Build Docker Images                  │
+                    │    ├── Push To Amazon ECR                  │
+                    │    ├── Deploy To EKS                       │
+                    │    └── Rollout Validation                  │
+                    │                                              │
+                    └──────────────────┬───────────────────────────┘
+                                       │
+                                       ▼
+
+                        ┌─────────────────────────────────┐
+                        │          GITHUB REPO            │
+                        │                                 │
+                        │  apps/                          │
+                        │  terraform/                     │
+                        │  kubernetes/                    │
+                        │  monitoring/                    │
+                        │  security/                      │
+                        │  scripts/                       │
+                        │  load-testing/                  │
+                        └─────────────────┬───────────────┘
+                                          │
+                                          ▼
+
+                         ┌────────────────────────────────┐
+                         │       TERRAFORM MODULES        │
+                         ├────────────────────────────────┤
+                         │                                │
+                         │  VPC Module                    │
+                         │   ├── Public Subnets           │
+                         │   ├── Private Subnets          │
+                         │   ├── NAT Gateway              │
+                         │   └── Route Tables             │
+                         │                                │
+                         │  EKS Module                    │
+                         │   ├── Control Plane            │
+                         │   ├── Managed Node Groups      │
+                         │   ├── IAM Roles                │
+                         │   ├── Security Groups          │
+                         │   └── Cluster Autoscaler       │
+                         │                                │
+                         │  ECR Module                    │
+                         │   ├── Frontend Repository      │
+                         │   └── Backend Repository       │
+                         │                                │
+                         └────────────────────────────────┘

@@ -1,0 +1,40 @@
+Developer Push
+      │
+      ▼
+GitHub Repository
+      │
+      ▼
+GitHub Actions Trigger
+      │
+      ├─────────────────────────────┐
+      ▼                             ▼
+
+Terraform Pipeline          Security Pipeline
+      │                             │
+      ▼                             ▼
+Terraform Validate         Trivy + tfsec
+      │                             │
+      └──────────────┬──────────────┘
+                     ▼
+
+           Kubernetes Validation
+                     │
+                     ▼
+
+              Docker Build
+                     │
+                     ▼
+
+               Push To ECR
+                     │
+                     ▼
+
+              Update EKS
+                     │
+                     ▼
+
+          Kubernetes Rollout
+                     │
+                     ▼
+
+           Production Running

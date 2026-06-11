@@ -1,0 +1,35 @@
+                 Incoming Traffic
+                         │
+                         ▼
+
+                CPU Usage Increases
+                         │
+                         ▼
+
+                Horizontal Pod Autoscaler
+                         │
+            ┌────────────┴────────────┐
+            ▼                         ▼
+
+     Scale Frontend Pods       Scale Backend Pods
+            │                         │
+            ▼                         ▼
+
+         More Pods              More Pods
+            │                         │
+            └────────────┬────────────┘
+                         ▼
+
+              Cluster Capacity Full
+                         │
+                         ▼
+
+               Cluster Autoscaler
+                         │
+                         ▼
+
+                Launch New EC2 Node
+                         │
+                         ▼
+
+                  Pods Scheduled
