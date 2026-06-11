@@ -12,8 +12,16 @@ jobs:
 
     steps:
 
+      #################################################
+      # CHECKOUT
+      #################################################
+
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      #################################################
+      # AWS CONFIG
+      #################################################
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -22,8 +30,16 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1
 
+      #################################################
+      # ECR LOGIN
+      #################################################
+
       - name: Login To Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
+
+      #################################################
+      # INSTALL KUBECTL
+      #################################################
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
@@ -31,7 +47,7 @@ jobs:
           version: latest
 
       #################################################
-      # FRONTEND
+      # FRONTEND IMAGE
       #################################################
 
       - name: Build Frontend Docker Image
@@ -63,7 +79,7 @@ jobs:
             913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-frontend:latest
 
       #################################################
-      # BACKEND
+      # BACKEND IMAGE
       #################################################
 
       - name: Build Backend Docker Image
@@ -95,7 +111,7 @@ jobs:
             913524913728.dkr.ecr.ap-south-1.amazonaws.com/ultimate-platform-backend:latest
 
       #################################################
-      # KUBERNETES DEPLOYMENT
+      # EKS KUBECONFIG
       #################################################
 
       - name: Update Kubeconfig
@@ -104,9 +120,29 @@ jobs:
             --region ap-south-1 \
             --name ultimate-eks-cluster
 
-      - name: Deploy Kubernetes Resources
+      #################################################
+      # KUBERNETES DEPLOYMENT
+      #################################################
+
+      - name: Create Namespaces
         run: |
-          kubectl apply -f kubernetes/
+          kubectl apply -f kubernetes/namespaces/
+
+      - name: Deploy Backend Resources
+        run: |
+          kubectl apply -f kubernetes/apps/backend/
+
+      - name: Deploy Frontend Resources
+        run: |
+          kubectl apply -f kubernetes/apps/frontend/
+
+      - name: Deploy Autoscaling Resources
+        run: |
+          kubectl apply -f kubernetes/autoscaling/
+
+      #################################################
+      # UPDATE IMAGES
+      #################################################
 
       - name: Update Frontend Deployment Image
         run: |
@@ -121,21 +157,31 @@ jobs:
             -n apps
 
       #################################################
-      # VALIDATION
+      # ROLLOUT VALIDATION
       #################################################
 
       - name: Verify Frontend Rollout
         run: |
-          kubectl rollout status deployment/frontend -n apps
+          kubectl rollout status deployment/frontend -n apps --timeout=300s
 
       - name: Verify Backend Rollout
         run: |
-          kubectl rollout status deployment/backend -n apps
+          kubectl rollout status deployment/backend -n apps --timeout=300s
+
+      #################################################
+      # CLUSTER VALIDATION
+      #################################################
 
       - name: Cluster Validation
         run: |
           kubectl get nodes
           kubectl get pods -A
+          kubectl get svc -A
+          kubectl get hpa -A
+
+      #################################################
+      # SUCCESS
+      #################################################
 
       - name: Deployment Success
         run: |
