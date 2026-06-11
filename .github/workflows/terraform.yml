@@ -1,48 +1,86 @@
 name: Terraform Infrastructure Pipeline
 
 on:
-  push:
-    branches:
-      - main
+push:
+branches:
+- main
 
-    paths:
-      - 'terraform/**'
+pull_request:
+branches:
+- main
 
-  pull_request:
-    branches:
-      - main
+workflow_dispatch:
 
 jobs:
-  terraform:
-    name: Terraform Validation
-    runs-on: ubuntu-latest
+terraform:
+name: Terraform Validation
+runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: terraform
 
-    steps:
+defaults:
+  run:
+    working-directory: terraform
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+steps:
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+  #################################################
+  # CHECKOUT
+  #################################################
 
-      - name: Terraform Format Check
-        run: terraform fmt -check
+  - name: Checkout Repository
+    uses: actions/checkout@v4
 
-      - name: Terraform Init
-        run: terraform init
+  #################################################
+  # TERRAFORM SETUP
+  #################################################
 
-      - name: Terraform Validate
-        run: terraform validate
+  - name: Setup Terraform
+    uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
+  #################################################
+  # TERRAFORM FORMAT
+  #################################################
 
-      - name: Upload Terraform Plan
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-plan
-          path: terraform/tfplan
+  - name: Terraform Format Check
+    run: terraform fmt -check -recursive
+
+  #################################################
+  # TERRAFORM INIT
+  #################################################
+
+  - name: Terraform Init
+    run: terraform init
+
+  #################################################
+  # TERRAFORM VALIDATE
+  #################################################
+
+  - name: Terraform Validate
+    run: terraform validate
+
+  #################################################
+  # TERRAFORM PLAN
+  #################################################
+
+  - name: Terraform Plan
+    run: terraform plan -out=tfplan
+
+  #################################################
+  # UPLOAD PLAN ARTIFACT
+  #################################################
+
+  - name: Upload Terraform Plan
+    uses: actions/upload-artifact@v4
+    with:
+      name: terraform-plan
+      path: terraform/tfplan
+
+  #################################################
+  # SUCCESS MESSAGE
+  #################################################
+
+  - name: Terraform Pipeline Success
+    run: |
+      echo "===================================="
+      echo "Terraform Validation Successful"
+      echo "===================================="
