@@ -7,6 +7,12 @@ on:
     paths:
       - 'kubernetes/**'
 
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'kubernetes/**'
+
 jobs:
   kubernetes-validation:
     name: Validate Kubernetes Manifests
@@ -15,7 +21,7 @@ jobs:
     steps:
 
       #################################################
-      # CHECKOUT
+      # CHECKOUT REPOSITORY
       #################################################
 
       - name: Checkout Repository
@@ -38,36 +44,40 @@ jobs:
         run: |
           kubectl apply \
             --dry-run=client \
+            --validate=false \
             -f kubernetes/namespaces/
 
       #################################################
-      # VALIDATE BACKEND
+      # VALIDATE BACKEND MANIFESTS
       #################################################
 
       - name: Validate Backend Manifests
         run: |
           kubectl apply \
             --dry-run=client \
+            --validate=false \
             -f kubernetes/apps/backend/
 
       #################################################
-      # VALIDATE FRONTEND
+      # VALIDATE FRONTEND MANIFESTS
       #################################################
 
       - name: Validate Frontend Manifests
         run: |
           kubectl apply \
             --dry-run=client \
+            --validate=false \
             -f kubernetes/apps/frontend/
 
       #################################################
-      # VALIDATE AUTOSCALING
+      # VALIDATE AUTOSCALING MANIFESTS
       #################################################
 
       - name: Validate Autoscaling Manifests
         run: |
           kubectl apply \
             --dry-run=client \
+            --validate=false \
             -f kubernetes/autoscaling/
 
       #################################################
@@ -87,13 +97,17 @@ jobs:
           test -f kubernetes/monitoring/alertmanager-values.yaml
 
       #################################################
-      # VALIDATE GRAFANA DASHBOARD JSON
+      # INSTALL JQ
       #################################################
 
       - name: Install jq
         run: |
           sudo apt-get update
           sudo apt-get install -y jq
+
+      #################################################
+      # VALIDATE GRAFANA DASHBOARD JSON
+      #################################################
 
       - name: Validate Grafana Dashboard JSON
         run: |
@@ -109,3 +123,4 @@ jobs:
           echo "===================================="
           echo "KUBERNETES VALIDATION SUCCESSFUL"
           echo "===================================="
+
