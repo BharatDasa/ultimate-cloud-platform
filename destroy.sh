@@ -8,6 +8,8 @@ echo "===================================="
 
 cd terraform
 
+terraform init -reconfigure
+
 terraform destroy -auto-approve
 
 echo "===================================="
