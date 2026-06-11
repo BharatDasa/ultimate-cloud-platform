@@ -4,32 +4,108 @@ on:
   push:
     branches:
       - main
-
     paths:
       - 'kubernetes/**'
 
 jobs:
   kubernetes-validation:
+    name: Validate Kubernetes Manifests
     runs-on: ubuntu-latest
 
     steps:
 
+      #################################################
+      # CHECKOUT
+      #################################################
+
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      #################################################
+      # INSTALL KUBECTL
+      #################################################
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v4
         with:
           version: latest
 
-      - name: Validate Kubernetes YAML Files
+      #################################################
+      # VALIDATE NAMESPACES
+      #################################################
+
+      - name: Validate Namespaces
         run: |
           kubectl apply \
             --dry-run=client \
-            -f kubernetes/
+            -f kubernetes/namespaces/
+
+      #################################################
+      # VALIDATE BACKEND
+      #################################################
+
+      - name: Validate Backend Manifests
+        run: |
+          kubectl apply \
+            --dry-run=client \
+            -f kubernetes/apps/backend/
+
+      #################################################
+      # VALIDATE FRONTEND
+      #################################################
+
+      - name: Validate Frontend Manifests
+        run: |
+          kubectl apply \
+            --dry-run=client \
+            -f kubernetes/apps/frontend/
+
+      #################################################
+      # VALIDATE AUTOSCALING
+      #################################################
+
+      - name: Validate Autoscaling Manifests
+        run: |
+          kubectl apply \
+            --dry-run=client \
+            -f kubernetes/autoscaling/
+
+      #################################################
+      # VALIDATE MONITORING FILES
+      #################################################
+
+      - name: Validate Prometheus Values File
+        run: |
+          test -f kubernetes/monitoring/prometheus-values.yaml
+
+      - name: Validate Grafana Values File
+        run: |
+          test -f kubernetes/monitoring/grafana-values.yaml
+
+      - name: Validate Alertmanager Values File
+        run: |
+          test -f kubernetes/monitoring/alertmanager-values.yaml
+
+      #################################################
+      # VALIDATE GRAFANA DASHBOARD JSON
+      #################################################
+
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Validate Grafana Dashboard JSON
+        run: |
+          jq empty \
+            kubernetes/monitoring/ultimate-cloud-platform-dashboard.json
+
+      #################################################
+      # SUMMARY
+      #################################################
 
       - name: Kubernetes Manifest Summary
         run: |
           echo "===================================="
-          echo "Kubernetes Manifests Validated"
+          echo "KUBERNETES VALIDATION SUCCESSFUL"
           echo "===================================="
