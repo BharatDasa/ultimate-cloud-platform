@@ -45,8 +45,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan
-<<<<<<< HEAD
           path: terraform/tfplan
-=======
-          path: terraform/tfplan
->>>>>>> 78daf1a7aacc4b062041fc5376bacd58bc2bc6c1
